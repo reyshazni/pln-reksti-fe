@@ -24,7 +24,7 @@ import { getDatabase, ref, onValue} from "firebase/database";
 const db = getDatabase();
 const starCountRef = ref(db, 'data/vibration/');
 
-export const attachDataListener = (setData) => {
+export const attachDataListener = (setData: (data: string) => void) => {
   const db = getDatabase();
   const starCountRef = ref(db, 'data/vibration/');
   

@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,4 +18,19 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+import { getDatabase, ref, onValue} from "firebase/database";
+
+const db = getDatabase();
+const starCountRef = ref(db, 'data/vibration/');
+
+export const attachDataListener = (setData) => {
+  const db = getDatabase();
+  const starCountRef = ref(db, 'data/vibration/');
+  
+  onValue(starCountRef, (snapshot) => {
+    const data = snapshot.val();
+    console.log(data.data);
+    setData(data.data);
+  });
+};

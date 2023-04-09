@@ -21,13 +21,24 @@ const app = initializeApp(firebaseConfig);
 
 import { getDatabase, ref, onValue} from "firebase/database";
 
-export const attachDataListener = (setData: (data: string) => void) => {
+export const attachDataListener1 = (setData1: (data: string) => void) => {
   const db = getDatabase();
-  const starCountRef = ref(db, 'engine1/');
+  const starCountRef = ref(db, '/');
   
   onValue(starCountRef, (snapshot) => {
     const data = snapshot.val();
     console.log(data.data);
-    setData(data.data);
+    setData1(data.engine1.data);
+  });
+};
+
+export const attachDataListener2 = (setData2: (data: string) => void) => {
+  const db = getDatabase();
+  const starCountRef = ref(db, '/');
+  
+  onValue(starCountRef, (snapshot) => {
+    const data = snapshot.val();
+    console.log(data.data);
+    setData2(data.engine2.data);
   });
 };

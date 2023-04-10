@@ -1,24 +1,39 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import { attachDataListener1, attachDataListener2 } from '../util/firebase'
-import { useEffect, useState } from 'react'
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import { attachDataListener1, attachDataListener2 } from "../util/firebase";
+import { useEffect, useState } from "react";
+import { type } from "os";
+// import Chart from "@/components/Chart";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-const inter = Inter({ subsets: ['latin'] })
+
+
+const inter = Inter({ subsets: ["latin"] });
+
+type DataType = {
+  data: string;
+  timestamp: string;
+};
+
+type ListData = [DataType]
 
 export default function Home() {
-  const [data1, setData1] = useState('0')
-  const [data2, setData2] = useState('0')
-  
+  const [data1, setData1] = useState("0");
+  const [data2, setData2] = useState({} as DataType);
+  const [listData, setListData] = useState([] as DataType[])
+
   useEffect(() => {
     attachDataListener1(setData1);
-    attachDataListener2(setData2);
+    attachDataListener2(setData2, setListData, listData);
+    // console.log(listData)
   }, []);
+  console.log(listData)
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
         <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          data1 = {data1}, data2 = {data2}
+          data1 = {data1}, data2 = {data2.data}
         </p>
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
           <a
@@ -27,7 +42,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            By{' '}
+            By{" "}
             <Image
               src="/vercel.svg"
               alt="Vercel Logo"
@@ -59,7 +74,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Docs{' '}
+            Docs{" "}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -78,7 +93,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Learn{' '}
+            Learn{" "}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -97,7 +112,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Templates{' '}
+            Templates{" "}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -116,7 +131,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <h2 className={`${inter.className} mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
+            Deploy{" "}
             <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
               -&gt;
             </span>
@@ -128,6 +143,14 @@ export default function Home() {
           </p>
         </a>
       </div>
+      {/* <Chart data={listData} /> */}
+      <LineChart width={600} height={300} data={listData.slice(1).slice(-5)}>
+          <Line type="monotone" dataKey="data" stroke="#8884d8" />
+          <CartesianGrid stroke="#ccc" />
+          <XAxis dataKey="timestamp" />
+          <YAxis />
+      </LineChart>
+
     </main>
-  )
+  );
 }

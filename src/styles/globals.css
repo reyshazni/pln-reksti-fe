@@ -25,3 +25,11 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.font-spartan {
+  font-family: 'League Spartan', sans-serif;
+}
+
+.font-alata {
+  font-family: 'Alata', sans-serif;
+}

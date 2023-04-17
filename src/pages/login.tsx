@@ -23,6 +23,20 @@ const Login = () => {
         })
     }
 
+
+    // BUAT BIKIN USER BARU
+    // createUserWithEmailAndPassword(auth, email, password)
+    // .then((userCredential) => {
+    //     // Signed in 
+    //     const user = userCredential.user;
+    //     // ...
+    // })
+    // .catch((error) => {
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     // ..
+    // });
+
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -40,7 +54,6 @@ const Login = () => {
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            console.log(errorMessage)
             toast({
                 title: 'Incorrect email or password',
                 description: "Please enter the right credentials",

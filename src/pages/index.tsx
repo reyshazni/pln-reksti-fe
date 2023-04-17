@@ -85,7 +85,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    console.log(route.pathname)
     attachDataListener(currEngine,setData, setListData, listData);    
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -106,7 +105,6 @@ export default function Home() {
         
       })
       setMaintenanceData(list)
-      console.log(list)
     };
     fetchProducts();
   }, [currEngine]);

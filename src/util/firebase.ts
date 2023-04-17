@@ -34,17 +34,6 @@ type DataType = {
   next_maintenance: number;
 };
 
-// export const attachDataListener1 = (setData1: (data: string) => void) => {
-//   const db = getDatabase();
-//   const starCountRef = ref(db, "/");
-
-//   onValue(starCountRef, (snapshot) => {
-//     const data = snapshot.val();
-//     // console.log(data.data);
-//     setData1(data.engine1.data);
-//   });
-// };
-
 export const attachDataListener = (engine : string,setData: (data: DataType) => void, setListData: (list: DataType[]) => void, list:DataType[]) => {
   const db = getDatabase();
   const starCountRef = ref(db, "/");

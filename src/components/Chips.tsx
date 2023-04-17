@@ -5,7 +5,6 @@ type Props = {
 }
 
 function Chips({status}:Props) {
-  console.log(status)
   let res = (<></>)
   if (status === "On request") {
     res = 

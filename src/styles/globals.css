@@ -33,3 +33,7 @@ body {
 .font-alata {
   font-family: 'Alata', sans-serif;
 }
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}

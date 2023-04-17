@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth"
+import { getFirestore } from "firebase/firestore";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,6 +23,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
+const firestore = getFirestore()
 const provider = new GoogleAuthProvider();
 
 import { getDatabase, ref, onValue } from "firebase/database";
@@ -28,32 +31,37 @@ import { getDatabase, ref, onValue } from "firebase/database";
 type DataType = {
   data: string;
   timestamp: string;
+  next_maintenance: number;
 };
 
-export const attachDataListener1 = (setData1: (data: string) => void) => {
+// export const attachDataListener1 = (setData1: (data: string) => void) => {
+//   const db = getDatabase();
+//   const starCountRef = ref(db, "/");
+
+//   onValue(starCountRef, (snapshot) => {
+//     const data = snapshot.val();
+//     // console.log(data.data);
+//     setData1(data.engine1.data);
+//   });
+// };
+
+export const attachDataListener = (engine : string,setData: (data: DataType) => void, setListData: (list: DataType[]) => void, list:DataType[]) => {
   const db = getDatabase();
   const starCountRef = ref(db, "/");
 
   onValue(starCountRef, (snapshot) => {
     const data = snapshot.val();
-    // console.log(data.data);
-    setData1(data.engine1.data);
-  });
-};
 
-export const attachDataListener2 = (setData2: (data: DataType) => void, setListData: (list: DataType[]) => void, list:DataType[]) => {
-  const db = getDatabase();
-  const starCountRef = ref(db, "/");
+    if (engine === "Sootblower") {
+      setData(data.engine1);
+      list.push(data.engine1)
+    } else {
+      setData(data.engine2);
+      list.push(data.engine2)
+    }
 
-  onValue(starCountRef, (snapshot) => {
-    const data = snapshot.val();
-    // console.log(data.data);
-    setData2(data.engine2);
-    list.push(data.engine2)
     setListData(list)
-    // console.log(data.engine2);
-    // console.log(list)
   });
 };
 
-export { app, auth, provider }
+export { app, auth, provider, firestore }

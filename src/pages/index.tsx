@@ -1,13 +1,29 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import { attachDataListener1, attachDataListener2 } from "../util/firebase";
+import { attachDataListener } from "../util/firebase";
 import { useEffect, useState } from "react";
 import { auth } from "../util/firebase";
-import plnLogo from '../assets/images/logo_pln.png'
 import dataLogo from '../assets/images/logo_data.png'
+import dateLogo from "../assets/images/logo_date.png"
 import { CartesianGrid, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
 import { useRouter } from "next/router";
 import { signOut,  onAuthStateChanged } from "firebase/auth";
+import { Select } from '@chakra-ui/react'
+import Sidebar from "@/components/Sidebar";
+import { collection, getDocs } from "firebase/firestore";
+import { firestore } from "../util/firebase";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+} from '@chakra-ui/react'
+import Chips from '@/components/Chips';
 
 
 
@@ -17,20 +33,32 @@ const inter = Inter({ subsets: ["latin"] });
 type DataType = {
   data: string;
   timestamp: string;
+  next_maintenance: number,
 };
+
+type MaintenanceData = {
+  component : string,
+  date : string,
+  id : string,
+  status : string,
+  type : string
+}
 
 type ListData = [DataType]
 
 export default function Home() {
-  const [data1, setData1] = useState("0");
-  const [data2, setData2] = useState({} as DataType);
+  const [data, setData] = useState({} as DataType);
   const [listData, setListData] = useState([] as DataType[])
   const [userName, setUserName] = useState<string | null>("")
   const [userImage, setUserImage] = useState<string>("")
+  const [engineStatus, setEngineStatus] = useState(true)
+  const [currEngine, setCurrEngine] = useState("Boiler")
+  const [maintenanceData, setMaintenanceData] = useState([] as MaintenanceData[])
+
 
   const route = useRouter()
 
-  const googleSignOut = () => {
+  const handleSignOut = () => {
     signOut(auth).then(() => {
       route.push("/login")
       localStorage.removeItem("email")
@@ -39,9 +67,26 @@ export default function Home() {
     })
   }
 
+  const getMaintenanceDate = (increment : number) : string => {
+    let date = new Date();
+    date.setDate(date.getDate() + increment);
+
+    const yyyy = date.getFullYear();
+    let mm = date.getMonth() + 1; // Months start at 0!
+    let dd = date.getDate();
+    if (dd < 10) dd = 0 + dd;
+    if (mm < 10) mm = 0 + mm;
+    return `${dd}-${mm}-${yyyy}`
+  }
+
+  const getDaysToMaintenance = (seconds: number) : number => {
+    const days = Math.floor(seconds / (3600*24))
+    return days
+  }
+
   useEffect(() => {
-    attachDataListener1(setData1);
-    attachDataListener2(setData2, setListData, listData);
+    console.log(route.pathname)
+    attachDataListener(currEngine,setData, setListData, listData);    
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserName(user.displayName)
@@ -52,39 +97,72 @@ export default function Home() {
         route.push("/login")
       }
     });
-  }, []);
+    const fetchProducts = async () => {
+      const colRef = collection(firestore,"maintenances")
+      const docsSnap = await getDocs(colRef)
+      const list = [] as MaintenanceData[]
+      docsSnap.forEach((doc) => {
+        list.push(doc.data() as MaintenanceData)
+        
+      })
+      setMaintenanceData(list)
+      console.log(list)
+    };
+    fetchProducts();
+  }, [currEngine]);
 
   return (
     <main className="flex min-h-screen bg-[#F8FAFB] ">
       <div className="pt-8 px-10 bg-white font-alata shadow-md">
-        <div className="flex items-center gap-2.5 mb-[30px]">
+        <Sidebar />
+        {/* <div className="flex items-center gap-2.5 mb-[30px]">
           <Image src={plnLogo} alt="Logo PLN" />
           <p className="text-black text-lg whitespace-nowrap font-bold">Maintenance System</p>
         </div>
-        <div className="flex items-center gap-3.5 bg-[#EDF4FF] px-[25px] py-[15px] rounded-xl">
-          <i className="fa-solid fa-house text-xl text-[#0561FC]"></i>
-          <p className="text-[#0561FC]">Dashboard</p>
+        <div className={`flex items-center gap-3.5 bg-[#EDF4FF] px-[25px] py-[15px] rounded-xl cursor-pointer`}>
+          <i className={`fa-solid fa-house text-xl ${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}></i>
+          <p className={`${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}>Dashboard</p>
         </div>
-        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl">
+        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl cursor-pointer">
           <i className="fa-solid fa-gear text-xl text-[#AEB9BE]"></i>
           <p className="text-[#AEB9BE]">Maintenance</p>
         </div>
-        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl">
-          <i className="fa-solid fa-house text-xl text-[#AEB9BE]"></i>
-          <p className="text-[#AEB9BE]">Dashboard</p>
-        </div>
+        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl ml-[0.2rem] cursor-pointer" onClick={() => route.push("/reports")}>
+          <i className="fa-solid fa-file-lines text-xl text-[#AEB9BE]"></i>
+          <p className="text-[#AEB9BE]">Reports</p>
+        </div> */}
       </div>
       <div className="font-spartan py-[35px] px-[48px]">
-        <p className=" text-black text-xl font-bold">Analytics</p>
+        <div className="flex items-center gap-4 mb-4">
+          <p className=" text-black text-xl font-bold">Analytics</p>
+          <Select borderRadius={"50"} borderColor={"black"} width={"50"} padding={0} onChange={(e) => setCurrEngine(e.target.value)}>
+            <option value='Boiler'>Boiler</option>
+            <option value='Sootblower'>Sootblower</option>
+          </Select>
+        </div>
+        
         <div className="grid grid-cols-4 grid-rows-4 gap-5">
           <div className="bg-white rounded-xl px-[17px] py-[34px] flex gap-3 shadow-md">
-            <div>
-              <Image src={dataLogo} alt="Data Logo"/>
-            </div>
-            <div className="flex flex-col justify-around">
-              <p className="text-[#93A3AB] text-sm">Real-time vibration</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{data2.data} mm</p>
-            </div>
+            {engineStatus ? (
+            <>
+              <div className="h-[55px] w-[55px] bg-[#E6FDE6] rounded-full">
+              </div>
+              <div className="flex flex-col justify-around">
+                
+                <p className="text-[#93A3AB] text-sm">Status</p>
+                <p className="text-black text-2xl font-bold leading-[0]">On</p>
+              </div>
+            </>) : (
+            <>
+              <div className="h-[55px] w-[55px] bg-[#FED8D8] rounded-full">
+              </div>
+              <div className="flex flex-col justify-around">
+                
+                <p className="text-[#93A3AB] text-sm">Status</p>
+                <p className="text-black text-2xl font-bold leading-[0]">Off</p>
+              </div>
+            </>)}
+            
           </div >
           <div className="bg-white rounded-xl px-[17px] py-[34px] flex gap-3 shadow-md">
             <div>
@@ -92,25 +170,25 @@ export default function Home() {
             </div>
             <div className="flex flex-col justify-around">
               <p className="text-[#93A3AB] text-sm">Real-time vibration</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{data2.data} mm</p>
+              <p className="text-black text-2xl font-bold leading-[0]">{data.data} mm</p>
             </div>
           </div >
           <div className="bg-white rounded-xl px-[17px] py-[34px] flex gap-3 shadow-md">
             <div>
-              <Image src={dataLogo} alt="Data Logo"/>
+              <Image src={dateLogo} alt="Data Logo"/>
             </div>
             <div className="flex flex-col justify-around">
-              <p className="text-[#93A3AB] text-sm">Real-time vibration</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{data2.data} mm</p>
+              <p className="text-[#93A3AB] text-sm whitespace-nowrap">{"Day(s) to maintenance"}</p>
+              <p className="text-black text-2xl font-bold leading-[0]">{getDaysToMaintenance(data.next_maintenance)} day(s)</p>
             </div>
           </div >
           <div className="bg-white rounded-xl px-[17px] py-[34px] flex gap-3 shadow-md">
             <div>
-              <Image src={dataLogo} alt="Data Logo"/>
+              <Image src={dateLogo} alt="Data Logo"/>
             </div>
             <div className="flex flex-col justify-around">
-              <p className="text-[#93A3AB] text-sm">Real-time vibration</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{data2.data} mm</p>
+              <p className="text-[#93A3AB] text-sm">Maintenance date</p>
+              <p className="text-black text-2xl font-bold leading-[0]">{getMaintenanceDate(getDaysToMaintenance(data.next_maintenance))}</p>
             </div>
           </div >
           <div className="bg-white p-6 rounded-xl col-span-3 row-span-3 shadow-md">
@@ -132,17 +210,48 @@ export default function Home() {
           <div className="col-span-1 row-span-2 bg-white flex flex-col justify-center items-center rounded-xl shadow-md gap-[20px]">
             <div>
               <p className="text-black text-center">Welcome,</p>
-              <p className="text-[#0561FC] text-center">{userName}</p>
+              <p className="text-[#0561FC] text-center">{userName ? userName : "Admin"}</p>
             </div>
-            <Image src={userImage} width={100} height={100} alt="User Image" className="rounded" />
-            <button onClick={googleSignOut} className="bg-[#fed7d7] px-[20px] py-[5px] rounded-lg">
+            {userImage ? 
+            (<>
+              <Image src={userImage} width={100} height={100} alt="User Image" className="rounded-xl" />
+            </>) : (<>
+              <i className="fa-solid fa-user-tie text-[100px] text-[#0561FC]"></i>
+            </>)}
+            <button onClick={handleSignOut} className="bg-[#fed7d7] px-[20px] py-[5px] rounded-lg shadow-md">
               <p className="text-[#FB7B7B] font-bold text-lg">Log Out</p>
             </button>
           </div>
         </div>
-
-
-        
+        <div className='font-alata mt-[38px]'>
+          <p className="mb-[15px] text-black text-xl font-bold">Maintenance history</p>
+          <div className='bg-white rounded-xl px-[70px] py-[50px] shadow-md'>
+          <TableContainer>
+            <Table variant='simple' size='lg'>
+              <Thead bgColor={"#F7F9FA"}>
+                <Tr textColor={"#A6A9AA"}>
+                  <Th textTransform={"capitalize"}>Component</Th>
+                  <Th textTransform={"capitalize"}>Maintenance date</Th>
+                  <Th textTransform={"capitalize"}>Type</Th>
+                  <Th textTransform={"capitalize"}>Status</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {maintenanceData.slice(0,3).map((data) => (
+                  <>
+                    <Tr>
+                      <Td>{data.component}</Td>
+                      <Td textColor={"#A6A9AA"}>{data.date}</Td>
+                      <Td>{data.type}</Td>
+                      <Td><Chips status={data.status} /></Td>
+                    </Tr>
+                  </>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
+          </div>
+        </div>
       </div>
     </main>
   );

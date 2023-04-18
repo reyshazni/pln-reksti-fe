@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 import Chips from '@/components/Chips';
 
+
 type MaintenanceData = {
   component : string,
   date : string,
@@ -79,7 +80,7 @@ function Maintenance() {
                       <Td>{data.component}</Td>
                       <Td textColor={"#A6A9AA"}>{data.date}</Td>
                       <Td>{data.type}</Td>
-                      <Td><Chips status={data.status} /></Td>
+                      <Td><Chips data={data} /></Td>
                     </Tr>
                   </>
                 ))}

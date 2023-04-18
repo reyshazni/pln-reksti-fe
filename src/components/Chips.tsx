@@ -1,32 +1,101 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { Select } from '@chakra-ui/react'
+import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { firestore } from "../util/firebase";
+
 
 type Props = {
-    status : string
+  data : {
+    component : string,
+    date : string,
+    id : string,
+    status : string,
+    type : string
+  }
 }
 
-function Chips({status}:Props) {
+type MaintenanceData = {
+  component : string,
+  date : string,
+  id : string,
+  status : string,
+  type : string
+}
+
+function Chips({data}:Props) {
+
+  const [maintenanceState, setMaintenanceState] = useState(data.status)
+
+  const handleStatusChange = async (newStatus : string) => {
+    const maintenanceDocRef = doc(firestore,"maintenances", data.id)
+    console.log(data.id)
+    await updateDoc(maintenanceDocRef, {
+      "status": newStatus,
+    });
+    setMaintenanceState(newStatus)
+  }
+
+  const setChipBgColor = () : string => {
+    let bgColor = ""
+    if (maintenanceState === "On request") {
+      bgColor = "#DFF0FF"
+    } else if (maintenanceState === "Done") {
+      bgColor = "#E6FDE6"
+    } else {
+      bgColor = "#FED8D8"
+    }
+    return bgColor
+  }
+
+  const setChipTextColor = () : string => {
+    let textColor = ""
+    if (maintenanceState === "On request") {
+      textColor = "#0561FC"
+    } else if (maintenanceState === "Done") {
+      textColor = "#78C278"
+    } else {
+      textColor = "#FB7B7B"
+    }
+    return textColor
+  }
+
   let res = (<></>)
-  if (status === "On request") {
+  if (data.status === "On request") {
     res = 
     (<>
-        <div className='bg-[#DFF0FF] py-[3px] rounded-xl w-[90px]'>
-            <p className='text-[#0561FC] text-[12px] font-bold text-center'>{status}</p>
-        </div>
+        <Select placeholder='On request' borderRadius={50} border={'none'} boxShadow={'none'} bgColor={setChipBgColor()} textColor={setChipTextColor()} onChange={(e) => handleStatusChange(e.target.value)}>
+          <option value='Done'>
+            Done
+          </option>
+          <option value='Canceled'>
+            Canceled
+          </option>
+        </Select>
     </>)
-  } else if (status === "Done"){
+  } else if (data.status === "Done"){
     res = 
     (<>
-        <div className='bg-[#E6FDE6] py-[3px] rounded-xl w-[90px]'>
-            <p className='text-[#78C278] text-[12px] font-bold text-center'>{status}</p>
-        </div>
+        <Select placeholder='Done' borderRadius={50} border={'none'} boxShadow={'none'} bgColor={setChipBgColor()} textColor={setChipTextColor()} onChange={(e) => handleStatusChange(e.target.value)}>
+          <option value='On request'>
+            On request
+          </option>
+          <option value='Canceled'>
+            Canceled
+          </option>
+        </Select>
     </>)
 
-  } else if (status === "Canceled") {
+  } else if (data.status === "Canceled") {
     res = 
     (<>
-        <div className='bg-[#FED8D8] py-[3px] rounded-xl w-[90px]'>
-            <p className='text-[#FB7B7B] text-[12px] font-bold text-center'>{status}</p>
-        </div>
+        <Select placeholder='Canceled' borderRadius={50} border={'none'} boxShadow={'none'} bgColor={setChipBgColor()} textColor={setChipTextColor()} onChange={(e) => handleStatusChange(e.target.value)}>
+          <option value='Done'>
+            Done
+          </option>
+          <option value='On request'>
+            On request
+          </option>
+        </Select>
     </>)
   }
   return res

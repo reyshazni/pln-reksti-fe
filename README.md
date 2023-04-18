@@ -16,3 +16,6 @@ PLN Smart Maintenance System memantau dan menjadwalkan maintenance pada komponen
 
 ## Menjalankan aplikasi
 - yarn start
+
+## Link deployment (tanpa backend)
+https://pln-reksti-fe.vercel.app/

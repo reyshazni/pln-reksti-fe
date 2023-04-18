@@ -15,18 +15,6 @@ import {
 } from '@chakra-ui/react'
 import Chips from '@/components/Chips';
 
-// component
-// "Sootblower"
-// (string)
-// date
-// "17/4/2023"
-// id
-// "LapzsGb5WMRD7nxwkYkt"
-// status
-// "On request"
-// type
-// "Check-up"
-
 type MaintenanceData = {
   component : string,
   date : string,
@@ -39,6 +27,20 @@ type MaintenanceData = {
 function Maintenance() {
   const [maintenanceData, setMaintenanceData] = useState([] as MaintenanceData[])
 
+  const sortByDate = (list : MaintenanceData[]) : MaintenanceData[] => {
+
+    list.sort((a, b) => {
+      const dateA = new Date(a.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
+      const dateB = new Date(b.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
+
+      // compare the dates
+      return dateA - dateB;
+    });
+    console.log(list)
+    return list
+
+  }
+
   useEffect(() => {
     const fetchProducts = async () => {
       const colRef = collection(firestore,"maintenances")
@@ -46,10 +48,8 @@ function Maintenance() {
       const list = [] as MaintenanceData[]
       docsSnap.forEach((doc) => {
         list.push(doc.data() as MaintenanceData)
-        
       })
       setMaintenanceData(list)
-      console.log(list)
     };
     fetchProducts();
   },[])
@@ -73,7 +73,7 @@ function Maintenance() {
                 </Tr>
               </Thead>
               <Tbody>
-                {maintenanceData.map((data) => (
+                {sortByDate(maintenanceData).map((data) => (
                   <>
                     <Tr>
                       <Td>{data.component}</Td>

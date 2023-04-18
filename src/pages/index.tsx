@@ -44,6 +44,11 @@ type MaintenanceData = {
   type : string
 }
 
+type MaintenanceDate = {
+  boiler : number,
+  sootblower : number
+}
+
 type ListData = [DataType]
 
 export default function Home() {
@@ -54,6 +59,7 @@ export default function Home() {
   const [engineStatus, setEngineStatus] = useState(true)
   const [currEngine, setCurrEngine] = useState("Boiler")
   const [maintenanceData, setMaintenanceData] = useState([] as MaintenanceData[])
+  const [maintenanceDate, setMaintenanceDate] = useState({} as MaintenanceDate)
 
 
   const route = useRouter()
@@ -66,6 +72,21 @@ export default function Home() {
       console.log(error)
     })
   }
+
+  const sortByDate = (list : MaintenanceData[]) : MaintenanceData[] => {
+
+    list.sort((a, b) => {
+      const dateA = new Date(a.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
+      const dateB = new Date(b.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
+
+      // compare the dates
+      return dateA - dateB;
+    });
+    console.log(list)
+    return list
+
+  }
+
 
   const getMaintenanceDate = (increment : number) : string => {
     let date = new Date();
@@ -85,7 +106,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    attachDataListener(currEngine,setData, setListData, listData);    
+    attachDataListener(currEngine,setData, setListData, listData, setMaintenanceDate);    
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserName(user.displayName)
@@ -96,7 +117,7 @@ export default function Home() {
         route.push("/login")
       }
     });
-    const fetchProducts = async () => {
+    const fetch = async () => {
       const colRef = collection(firestore,"maintenances")
       const docsSnap = await getDocs(colRef)
       const list = [] as MaintenanceData[]
@@ -106,29 +127,13 @@ export default function Home() {
       })
       setMaintenanceData(list)
     };
-    fetchProducts();
+    fetch();
   }, [currEngine]);
 
   return (
     <main className="flex min-h-screen bg-[#F8FAFB] ">
       <div className="pt-8 px-10 bg-white font-alata shadow-md">
         <Sidebar />
-        {/* <div className="flex items-center gap-2.5 mb-[30px]">
-          <Image src={plnLogo} alt="Logo PLN" />
-          <p className="text-black text-lg whitespace-nowrap font-bold">Maintenance System</p>
-        </div>
-        <div className={`flex items-center gap-3.5 bg-[#EDF4FF] px-[25px] py-[15px] rounded-xl cursor-pointer`}>
-          <i className={`fa-solid fa-house text-xl ${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}></i>
-          <p className={`${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}>Dashboard</p>
-        </div>
-        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl cursor-pointer">
-          <i className="fa-solid fa-gear text-xl text-[#AEB9BE]"></i>
-          <p className="text-[#AEB9BE]">Maintenance</p>
-        </div>
-        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl ml-[0.2rem] cursor-pointer" onClick={() => route.push("/reports")}>
-          <i className="fa-solid fa-file-lines text-xl text-[#AEB9BE]"></i>
-          <p className="text-[#AEB9BE]">Reports</p>
-        </div> */}
       </div>
       <div className="font-spartan py-[35px] px-[48px]">
         <div className="flex items-center gap-4 mb-4">
@@ -177,7 +182,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col justify-around">
               <p className="text-[#93A3AB] text-sm whitespace-nowrap">{"Day(s) to maintenance"}</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{getDaysToMaintenance(data.next_maintenance)} day(s)</p>
+              <p className="text-black text-2xl font-bold leading-[0]">{currEngine==="Boiler" ? getDaysToMaintenance(maintenanceDate.boiler) : getDaysToMaintenance(maintenanceDate.sootblower)} day(s)</p>
             </div>
           </div >
           <div className="bg-white rounded-xl px-[17px] py-[34px] flex gap-3 shadow-md">
@@ -186,7 +191,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col justify-around">
               <p className="text-[#93A3AB] text-sm">Maintenance date</p>
-              <p className="text-black text-2xl font-bold leading-[0]">{getMaintenanceDate(getDaysToMaintenance(data.next_maintenance))}</p>
+              <p className="text-black text-2xl font-bold leading-[0]">{currEngine==="Boiler" ? getMaintenanceDate(getDaysToMaintenance(maintenanceDate.boiler)) : getMaintenanceDate(getDaysToMaintenance(maintenanceDate.sootblower))}</p>
             </div>
           </div >
           <div className="bg-white p-6 rounded-xl col-span-3 row-span-3 shadow-md">
@@ -235,7 +240,7 @@ export default function Home() {
                 </Tr>
               </Thead>
               <Tbody>
-                {maintenanceData.slice(0,3).map((data) => (
+                {sortByDate(maintenanceData).slice(0,3).map((data) => (
                   <>
                     <Tr>
                       <Td>{data.component}</Td>

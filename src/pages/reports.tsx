@@ -42,6 +42,26 @@ export default function Reports() {
 
   const route = useRouter()
 
+  const sortByDate = (list : ReportData[]) : ReportData[] => {
+
+    list.sort((a, b) => {
+      const dateA = a.timestamp.split(/\/|, |\./).map(str => parseInt(str, 10));
+      const dateB = b.timestamp.split(/\/|, |\./).map(str => parseInt(str, 10));
+    
+      // Compare year, then month, then day, then hour, then minute, then second
+      for (let i = 0; i < dateA.length; i++) {
+        if (dateA[i] !== dateB[i]) {
+          return dateB[i] - dateA[i];
+        }
+      }
+    
+      return 0;
+    });
+    return list
+
+  }
+
+
   useEffect(() => {
     const fetchProducts = async () => {
       // services.map((service) => dispatch(getProducts(service)));
@@ -61,22 +81,6 @@ export default function Reports() {
     <main className="flex min-h-screen bg-[#F8FAFB] ">
       <div className="pt-8 px-10 bg-white font-alata shadow-md">
         <Sidebar />
-        {/* <div className="flex items-center gap-2.5 mb-[30px]">
-          <Image src={plnLogo} alt="Logo PLN" />
-          <p className="text-black text-lg whitespace-nowrap font-bold">Maintenance System</p>
-        </div>
-        <div className={`flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl cursor-pointer hover:bg-[#EDF4FF] ${route.pathname === "/" ? "bg-[#EDF4FF]" : ""}`}  onClick={() => route.push("/")}>
-          <i className={`fa-solid fa-house text-xl ${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}></i>
-          <p className={`${route.pathname === "/" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}>Dashboard</p>
-        </div>
-        <div className="flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl cursor-pointer hover:bg-[#EDF4FF]">
-          <i className="fa-solid fa-gear text-xl text-[#AEB9BE]"></i>
-          <p className="text-[#AEB9BE]">Maintenance</p>
-        </div>
-        <div className={`flex items-center gap-3.5 px-[25px] py-[15px] rounded-xl ml-[0.2rem] cursor-pointer hover:bg-[#EDF4FF] ${route.pathname === "/reports" ? "bg-[#EDF4FF]" : ""}`}>
-          <i className={`fa-solid fa-file-lines text-xl ${route.pathname === "/reports" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}></i>
-          <p className={`${route.pathname === "/reports" ? "text-[#0561FC]" : "text-[#AEB9BE]"}`}>Reports</p>
-        </div> */}
       </div>
       <div className='font-alata py-[35px] px-[48px]'>
         <p className="mb-[15px] text-black text-xl font-bold">Anomaly reports</p>
@@ -91,7 +95,7 @@ export default function Reports() {
                 </Tr>
               </Thead>
               <Tbody>
-                {reportData.map((data) => (
+                {sortByDate(reportData).map((data) => (
                   <>
                     <Tr>
                       <Td>{data.engine}</Td>
@@ -100,17 +104,6 @@ export default function Reports() {
                     </Tr>
                   </>
                 ))}
-
-                {/* <Tr>
-                  <Td>feet</Td>
-                  <Td>centimetres (cm)</Td>
-                  <Td>30.48</Td>
-                </Tr>
-                <Tr>
-                  <Td>yards</Td>
-                  <Td>metres (m)</Td>
-                  <Td>0.91444</Td>
-                </Tr> */}
               </Tbody>
             </Table>
           </TableContainer>

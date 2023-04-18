@@ -34,7 +34,13 @@ type DataType = {
   next_maintenance: number;
 };
 
-export const attachDataListener = (engine : string,setData: (data: DataType) => void, setListData: (list: DataType[]) => void, list:DataType[]) => {
+type MaintenanceDate = {
+  boiler : number,
+  sootblower : number
+}
+
+
+export const attachDataListener = (engine : string,setData: (data: DataType) => void, setListData: (list: DataType[]) => void, list:DataType[], setMaintenanceDate: (maintenanceDate : MaintenanceDate) => void) => {
   const db = getDatabase();
   const starCountRef = ref(db, "/");
 
@@ -50,6 +56,8 @@ export const attachDataListener = (engine : string,setData: (data: DataType) => 
     }
 
     setListData(list)
+    console.log(data.next_maintenance)
+    setMaintenanceDate(data.next_maintenance)
   });
 };
 

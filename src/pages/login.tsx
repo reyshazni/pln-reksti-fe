@@ -13,6 +13,7 @@ const Login = () => {
     const route = useRouter()
     const toast = useToast()
 
+    // Currently not used
     const googleSignIn = () => {
         signInWithPopup(auth,provider).then((data)=>{
             if (data.user.email) {
@@ -24,18 +25,6 @@ const Login = () => {
     }
 
 
-    // BUAT BIKIN USER BARU
-    // createUserWithEmailAndPassword(auth, email, password)
-    // .then((userCredential) => {
-    //     // Signed in 
-    //     const user = userCredential.user;
-    //     // ...
-    // })
-    // .catch((error) => {
-    //     const errorCode = error.code;
-    //     const errorMessage = error.message;
-    //     // ..
-    // });
 
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
@@ -86,13 +75,6 @@ const Login = () => {
                 <button className='bg-[#0561FC] px-[30px] pt-[5px] pb-[10px] rounded-md shadow-xl' onClick={handleLogin}>
                     <p className='text-white'>Login</p>
                 </button>
-                    
-                {/* <button onClick={googleSignIn} className="bg-[#0561FC] text-black text-lg whitespace-nowrap font-bold flex p-5 items-center gap-5 rounded-xl shadow-xl">
-                    <i className="fa-brands fa-google text-white"></i>
-                    <p className='text-white text-md'>Sign In with Google</p>
-                </button> */}
-                
-
             </div>
         </div>
     )

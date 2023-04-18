@@ -17,5 +17,11 @@ PLN Smart Maintenance System memantau dan menjadwalkan maintenance pada komponen
 ## Menjalankan aplikasi
 - yarn start
 
-## Link deployment (tanpa backend)
+## Link deployment (hanya frontend)
+*Agar aplikasi dapat berjalan dengan baik, Anda harus menjalankan service front-end dan back-end.
+
 https://pln-reksti-fe.vercel.app/
+
+## Gunakan akun ini untuk login:
+- email: admin@gmail.com
+- pass:  admin123

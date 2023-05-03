@@ -56,7 +56,6 @@ export const attachDataListener = (engine : string,setData: (data: DataType) => 
     }
 
     setListData(list)
-    console.log(data.next_maintenance)
     setMaintenanceDate(data.next_maintenance)
   });
 };

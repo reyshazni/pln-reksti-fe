@@ -75,14 +75,15 @@ export default function Home() {
 
   const sortByDate = (list : MaintenanceData[]) : MaintenanceData[] => {
 
-    list.sort((a, b) => {
-      const dateA = new Date(a.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
-      const dateB = new Date(b.date.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2})\.(\d{2})\.(\d{2})/, '$2/$1/$3 $4:$5:$6')).getTime();
-
-      // compare the dates
-      return dateA - dateB;
-    });
-    console.log(list)
+    function compareDates(a: { date: string }, b: { date: string }) {
+      const dateA = new Date(a.date.split('/').reverse().join('-'));
+      const dateB = new Date(b.date.split('/').reverse().join('-'));
+      return dateB.getTime() - dateA.getTime();
+    }
+    
+    // Sort the list based on their date
+    list.sort(compareDates);
+    
     return list
 
   }

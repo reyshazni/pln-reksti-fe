@@ -28,7 +28,6 @@ function Chips({data}:Props) {
 
   const handleStatusChange = async (newStatus : string) => {
     const maintenanceDocRef = doc(firestore,"maintenances", data.id)
-    console.log(data.id)
     await updateDoc(maintenanceDocRef, {
       "status": newStatus,
     });

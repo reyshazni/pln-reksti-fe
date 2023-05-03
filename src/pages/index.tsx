@@ -69,7 +69,7 @@ export default function Home() {
       route.push("/login")
       localStorage.removeItem("email")
     }).catch((error) => {
-      console.log(error)
+      console.log("Error : ",error)
     })
   }
 
